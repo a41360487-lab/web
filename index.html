@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Securolpicxews - Game Engine</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#0f0f1a 0%,#1a1a2e 50%,#252538 100%);color:#fff;min-height:100vh;overflow-x:hidden}
+.header{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;background:rgba(255,255,255,0.03);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,0.05);position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-icon{width:40px;height:40px;background:linear-gradient(135deg,#e11d2d 0%,#c41e2a 100%);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:rgba(255,255,255,0.3);box-shadow:0 4px 15px rgba(225,29,45,0.3)}
+.logo-text{font-size:22px;font-weight:700;background:linear-gradient(135deg,#fff 0%,#e0e0e0 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-btns{display:flex;gap:10px}
+.nav-btn{background:rgba(255,255,255,0.08);color:#ccc;border:1px solid rgba(255,255,255,0.1);padding:8px 18px;border-radius:8px;cursor:pointer;font-size:14px;transition:all 0.2s ease}
+.nav-btn:hover{background:rgba(255,255,255,0.15);color:#fff}
+.nav-btn.primary{background:linear-gradient(135deg,#4ade80 0%,#22d3ee 100%);color:#1a1a2e;border:none;font-weight:600}
+.main-layout{display:flex;max-width:1600px;margin:0 auto;padding:24px;gap:24px}
+.sidebar{width:280px;flex-shrink:0}
+.panel{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:20px;margin-bottom:16px}
+.panel-title{font-size:14px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.05)}
+.auth-tabs{display:flex;gap:6px;margin-bottom:16px}
+.auth-tab{flex:1;padding:10px;border:none;border-radius:8px;background:rgba(255,255,255,0.06);color:#aaa;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.2s ease}
+.auth-tab:hover{background:rgba(255,255,255,0.1)}
+.auth-tab.active{background:linear-gradient(135deg,#4ade80 0%,#22d3ee 100%);color:#1a1a2e}
+.auth-form{display:none}
+.auth-form.active{display:block}
+.auth-input{width:100%;padding:12px 14px;margin-bottom:10px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;background:rgba(255,255,255,0.05);color:#fff;font-size:14px;transition:all 0.2s ease}
+.auth-input::placeholder{color:rgba(255,255,255,0.4)}
+.auth-input:focus{outline:none;border-color:#4ade80;background:rgba(255,255,255,0.08)}
+.btn-submit{width:100%;padding:12px;border:none;border-radius:8px;background:linear-gradient(135deg,#4ade80 0%,#22d3ee 100%);color:#1a1a2e;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s ease}
+.btn-submit:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(74,222,128,0.3)}
+.guest-link{text-align:center;margin-top:12px;font-size:13px;color:#888}
+.guest-link a{color:#4ade80;text-decoration:none;cursor:pointer}
+.guest-link a:hover{text-decoration:underline}
+.user-bar{display:flex;align-items:center;justify-content:space-between;padding:12px;background:rgba(255,255,255,0.04);border-radius:10px;margin-bottom:16px}
+.user-name{font-weight:600;font-size:14px}
+.badge{padding:4px 10px;border-radius:12px;font-size:11px;font-weight:700;background:linear-gradient(135deg,#4ade80 0%,#22d3ee 100%);color:#1a1a2e}
+.badge.guest{background:rgba(255,255,255,0.15);color:#fff}
+.drop-zone{border:2px dashed rgba(255,255,255,0.15);border-radius:12px;padding:24px 16px;text-align:center;cursor:pointer;transition:all 0.3s ease;background:rgba(255,255,255,0.02);margin-bottom:12px}
+.drop-zone:hover{border-color:#4ade80;background:rgba(74,222,128,0.05)}
+.drop-zone .icon{font-size:36px;display:block;margin-bottom:8px}
+.drop-zone p{font-size:13px;color:#aaa;margin:4px 0}
+.drop-zone .small{font-size:11px;color:#666}
+.upload-options{display:flex;gap:8px;margin-bottom:12px}
+.upload-options label{flex:1;display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;padding:8px;border-radius:8px;background:rgba(255,255,255,0.05);justify-content:center}
+.upload-settings label{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;margin-bottom:6px;color:#aaa}
+.locked-hint{text-align:center;padding:20px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px dashed rgba(255,255,255,0.1)}
+.locked-hint .lock-icon{font-size:28px;display:block;margin-bottom:8px}
+.locked-hint p{font-size:13px;color:#888}
+.content-area{flex:1;min-width:0}
+.section-title{font-size:18px;font-weight:700;margin-bottom:16px;padding-right:12px;border-right:3px solid #4ade80}
+.games-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:32px}
+.game-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:16px;transition:all 0.3s ease;cursor:pointer;position:relative;overflow:hidden}
+.game-card:hover{background:rgba(255,255,255,0.08);transform:translateY(-4px);box-shadow:0 8px 30px rgba(0,0,0,0.3);border-color:rgba(74,222,128,0.2)}
+.game-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#4ade80,#22d3ee);opacity:0;transition:opacity 0.3s ease}
+.game-card:hover::before{opacity:1}
+.game-card-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.game-icon{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.game-card-title{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.game-card-meta{font-size:12px;color:#888;margin-top:2px}
+.game-card-tags{display:flex;gap:6px;margin-top:12px}
+.tag{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:500}
+.tag.default{background:rgba(74,222,128,0.15);color:#4ade80}
+.tag.public{background:rgba(251,191,36,0.15);color:#fbbf24}
+.tag.private{background:rgba(255,255,255,0.08);color:#aaa}
+.game-card-actions{display:flex;gap:8px;margin-top:12px}
+.card-btn{flex:1;padding:8px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s ease}
+.card-btn.play{background:linear-gradient(135deg,#4ade80 0%,#22d3ee 100%);color:#1a1a2e}
+.card-btn.play:hover{opacity:0.9;transform:scale(1.02)}
+.card-btn.delete{background:rgba(239,68,68,0.15);color:#f87171}
+.card-btn.delete:hover{background:rgba(239,68,68,0.25)}
+.game-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:1000;background:#0a0a1a;display:none;flex-direction:column}
+.game-overlay.active{display:flex}
+.game-overlay-header{display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:linear-gradient(135deg,#1a1a2e 0%,#252538 100%);border-bottom:1px solid rgba(255,255,255,0.06)}
+.game-overlay-title{font-size:16px;font-weight:600}
+.game-overlay-btns{display:flex;gap:8px}
+.overlay-btn{padding:8px 16px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;background:rgba(255,255,255,0.06);color:#ccc;cursor:pointer;font-size:13px;transition:all 0.2s ease}
+.overlay-btn:hover{background:rgba(255,255,255,0.12);color:#fff}
+.overlay-btn.danger{background:rgba(239,68,68,0.2);color:#f87171;border-color:rgba(239,68,68,0.3)}
+.overlay-btn.danger:hover{background:rgba(239,68,68,0.3)}
+.game-canvas-area{flex:1;position:relative;background:#050510;overflow:hidden}
+.game-canvas-area canvas{display:block;width:100%;height:100%}
+.game-status-bar{display:flex;justify-content:space-between;align-items:center;padding:6px 24px;background:#151525;border-top:1px solid rgba(255,255,255,0.05);font-size:12px;color:#666}
+.loading-screen{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0a0a1a;z-index:10}
+.loading-screen.hidden{display:none}
+.spinner{width:50px;height:50px;border:3px solid rgba(74,222,128,0.2);border-top-color:#4ade80;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.notification{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 28px;border-radius:10px;font-weight:600;font-size:14px;box-shadow:0 8px 30px rgba(0,0,0,0.4);z-index:2000;animation:slideUp 0.3s ease;direction:rtl}
+@keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:rgba(255,255,255,0.05)}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.25)}
+@media(max-width:900px){.main-layout{flex-direction:column}.sidebar{width:100%}.games-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="header">
+<div class="logo">
+<div class="logo-icon">S</div>
+<span class="logo-text">Securolpicxews</span>
+</div>
+<div class="nav-btns">
+<button class="nav-btn" onclick="app.toggleFullscreen()">⛶ تمام صفحه</button>
+</div>
+</header>
+<div class="main-layout">
+<aside class="sidebar" id="sidebar">
+<div class="panel" id="authPanel">
+<div class="panel-title">🔐 حساب کاربری</div>
+<div class="auth-tabs">
+<button class="auth-tab active" onclick="app.switchAuthTab('login',this)">ورود</button>
+<button class="auth-tab" onclick="app.switchAuthTab('register',this)">ثبت نام</button>
+</div>
+<div class="auth-form active" id="loginForm">
+<input type="text" class="auth-input" id="loginUsername" placeholder="نام کاربری">
+<input type="password" class="auth-input" id="loginPassword" placeholder="رمز عبور">
+<button class="btn-submit" onclick="app.login()">ورود</button>
+<div class="guest-link">
+یا <a onclick="app.guestLogin()">ورود به عنوان مهمان</a>
+</div>
+</div>
+<div class="auth-form" id="registerForm">
+<input type="text" class="auth-input" id="regUsername" placeholder="نام کاربری">
+<input type="email" class="auth-input" id="regEmail" placeholder="ایمیل">
+<input type="password" class="auth-input" id="regPassword" placeholder="رمز عبور">
+<input type="password" class="auth-input" id="regPasswordConfirm" placeholder="تکرار رمز عبور">
+<button class="btn-submit" onclick="app.register()">ثبت نام</button>
+</div>
+</div>
+<div class="panel" id="userPanel" style="display:none">
+<div class="user-bar">
+<span class="user-name" id="userDisplayName">👤 کاربر</span>
+<span class="badge" id="userBadge">عضو</span>
+</div>
+<button class="btn-submit" onclick="app.logout()" style="background:rgba(239,68,68,0.2);color:#f87171">🚪 خروج</button>
+</div>
+<div class="panel" id="uploadPanel" style="display:none">
+<div class="panel-title">📤 آپلود بازی</div>
+<div class="drop-zone" onclick="document.getElementById('fileInput').click()">
+<span class="icon">📁</span>
+<p>فایل را اینجا بکشید یا کلیک کنید</p>
+<p class="small">HTML یا ZIP</p>
+<input type="file" id="fileInput" accept=".html,.zip" style="display:none" onchange="app.handleFiles(this.files)">
+</div>
+<div class="upload-options">
+<label><input type="radio" name="uploadType" value="html" checked onchange="app.uploadType='html'"> HTML</label>
+<label><input type="radio" name="uploadType" value="zip" onchange="app.uploadType='zip'"> ZIP</label>
+</div>
+<div class="upload-settings">
+<label><input type="checkbox" id="publicUpload" checked> 🌐 عمومی</label>
+<label><input type="checkbox" id="privateUpload"> 🔒 خصوصی</label>
+</div>
+<button class="btn-submit" onclick="document.getElementById('fileInput').click()">📤 آپلود بازی</button>
+</div>
+<div class="panel" id="lockedPanel" style="display:none">
+<div class="panel-title">📤 آپلود بازی</div>
+<div class="locked-hint">
+<span class="lock-icon">🔒</span>
+<p>برای آپلود بازی ثبت نام کنید</p>
+</div>
+</div>
+</aside>
+<main class="content-area">
+<div class="section-title">🎮 بازی‌های پیش‌فرض</div>
+<div class="games-grid" id="defaultGames"></div>
+<div class="section-title">📂 بازی‌های من</div>
+<div class="games-grid" id="myGames"></div>
+<div class="section-title">🌍 بازی‌های عمومی</div>
+<div class="games-grid" id="publicGames"></div>
+</main>
+</div>
+<div class="game-overlay" id="gameOverlay">
+<div class="game-overlay-header">
+<span class="game-overlay-title" id="overlayTitle">🎮 بازی</span>
+<div class="game-overlay-btns">
+<button class="overlay-btn" onclick="app.refreshGame()">🔄 رفرش</button>
+<button class="overlay-btn" onclick="app.toggleFullscreen()">⛶ تمام صفحه</button>
+<button class="overlay-btn danger" onclick="app.closeGame()">✕ بستن</button>
+</div>
+</div>
+<div class="game-canvas-area" id="gameCanvasArea">
+<div class="loading-screen" id="gameLoading">
+<div class="spinner"></div>
+<div style="color:#888;font-size:14px">در حال بارگذاری بازی...</div>
+</div>
+</div>
+<div class="game-status-bar">
+<span><span style="color:#4ade80">●</span> <span id="overlayStatus">Ready</span></span>
+<span>Securolpicxews Game Engine</span>
+</div>
+</div>
+<script>
+// بازی‌های پیش‌فرض با three.js و بازی مسابقه ماشین با Game Over
+const DEFAULT_GAMES = [
+{
+  id: 'default_1',
+  name: '🎲 مکعب چرخان 3D',
+  type: 'html',
+  isDefault: true,
+  size: 2048,
+  author: 'Securolpicxews',
+  date: '1403/04/01',
+  content: `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { overflow: hidden; background: #1a1a2e; font-family: sans-serif; }
+  #info { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); color: #4ade80; font-size: 16px; z-index: 10; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 10px; pointer-events: none; }
+  #controls { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); color: #888; font-size: 14px; z-index: 10; background: rgba(0,0,0,0.5); padding: 8px 20px; border-radius: 10px; }
+</style>
+</head>
+<body>
+<div id="info">🎲 مکعب چرخان 3D</div>
+<div id="controls">🖱 حرکت ماوس برای چرخش</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>
+<script>
+(function() {
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0x1a1a2e);
+  document.body.appendChild(renderer.domElement);
+
+  const geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+  const materials = [
+    new THREE.MeshBasicMaterial({ color: 0xff6b6b }),
+    new THREE.MeshBasicMaterial({ color: 0x4ecdc4 }),
+    new THREE.MeshBasicMaterial({ color: 0xffe66d }),
+    new THREE.MeshBasicMaterial({ color: 0xa8e6cf }),
+    new THREE.MeshBasicMaterial({ color: 0xff8a5c }),
+    new THREE.MeshBasicMaterial({ color: 0x6c5ce7 })
+  ];
+  const cube = new THREE.Mesh(geometry, materials);
+  scene.add(cube);
+
+  const edges = new THREE.EdgesGeometry(geometry);
+  const lineMat = new THREE.LineBasicMaterial({ color: 0x4ade80 });
+  const wireframe = new THREE.LineSegments(edges, lineMat);
+  cube.add(wireframe);
+
+  const starsGeometry = new THREE.BufferGeometry();
+  const starsCount = 1000;
+  const starsPositions = new Float32Array(starsCount * 3);
+  for (let i = 0; i < starsCount * 3; i++) {
+    starsPositions[i] = (Math.random() - 0.5) * 100;
+  }
+  starsGeometry.setAttribute('position', new THREE.BufferAttribute(starsPositions, 3));
+  const starsMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.1 });
+  const stars = new THREE.Points(starsGeometry, starsMaterial);
+  scene.add(stars);
+
+  camera.position.z = 4;
+
+  let mouseX = 0, mouseY = 0;
+  let targetX = 0, targetY = 0;
+
+  document.addEventListener('mousemove', (event) => {
+    mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+    mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+  });
+
+  document.addEventListener('touchmove', (event) => {
+    if (event.touches.length > 0) {
+      mouseX = (event.touches[0].clientX / window.innerWidth) * 2 - 1;
+      mouseY = -(event.touches[0].clientY / window.innerHeight) * 2 + 1;
+    }
+  });
+
+  function animate() {
+    requestAnimationFrame(animate);
+    targetX += (mouseX * 0.5 - targetX) * 0.05;
+    targetY += (mouseY * 0.5 - targetY) * 0.05;
+    cube.rotation.x += 0.005 + targetY * 0.01;
+    cube.rotation.y += 0.01 + targetX * 0.01;
+    stars.rotation.y += 0.0005;
+    renderer.render(scene, camera);
+  }
+
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+})();
+<\/script>
+</body>
+</html>`
+},
+{
+  id: 'default_2',
+  name: '🌌 منظومه شمسی 3D',
+  type: 'html',
+  isDefault: true,
+  size: 3072,
+  author: 'Securolpicxews',
+  date: '1403/04/01',
+  content: `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { overflow: hidden; background: #0a0a1a; font-family: sans-serif; }
+  #info { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); color: #4ade80; font-size: 16px; z-index: 10; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 10px; pointer-events: none; }
+  #controls { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); color: #888; font-size: 14px; z-index: 10; background: rgba(0,0,0,0.5); padding: 8px 20px; border-radius: 10px; }
+</style>
+</head>
+<body>
+<div id="info">🌌 منظومه شمسی 3D</div>
+<div id="controls">🖱 حرکت ماوس برای دید دور</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>
+<script>
+(function() {
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0x0a0a1a);
+  document.body.appendChild(renderer.domElement);
+
+  const starsGeometry = new THREE.BufferGeometry();
+  const starsCount = 2000;
+  const starsPositions = new Float32Array(starsCount * 3);
+  const starsColors = new Float32Array(starsCount * 3);
+  for (let i = 0; i < starsCount; i++) {
+    const r = 50 + Math.random() * 50;
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.random() * Math.PI * 2;
+    starsPositions[i * 3] = r * Math.sin(theta) * Math.cos(phi);
+    starsPositions[i * 3 + 1] = r * Math.sin(theta) * Math.sin(phi);
+    starsPositions[i * 3 + 2] = r * Math.cos(theta);
+    const c = 0.5 + Math.random() * 0.5;
+    starsColors[i * 3] = c;
+    starsColors[i * 3 + 1] = c;
+    starsColors[i * 3 + 2] = c + Math.random() * 0.3;
+  }
+  starsGeometry.setAttribute('position', new THREE.BufferAttribute(starsPositions, 3));
+  starsGeometry.setAttribute('color', new THREE.BufferAttribute(starsColors, 3));
+  const starsMaterial = new THREE.PointsMaterial({ size: 0.3, vertexColors: true });
+  const stars = new THREE.Points(starsGeometry, starsMaterial);
+  scene.add(stars);
+
+  const sunGeo = new THREE.SphereGeometry(0.8, 32, 32);
+  const sunMat = new THREE.MeshBasicMaterial({ color: 0xffd93d });
+  const sun = new THREE.Mesh(sunGeo, sunMat);
+  scene.add(sun);
+  
+  const sunLight = new THREE.PointLight(0xffd93d, 2, 30);
+  sunLight.position.set(0, 0, 0);
+  scene.add(sunLight);
+
+  const planetData = [
+    { color: 0xff6b6b, size: 0.3, distance: 2.0, speed: 0.02 },
+    { color: 0xffd93d, size: 0.35, distance: 2.8, speed: 0.015 },
+    { color: 0x4ecdc4, size: 0.4, distance: 3.6, speed: 0.01 },
+    { color: 0xff8a5c, size: 0.32, distance: 4.4, speed: 0.008 },
+    { color: 0xff6b6b, size: 0.7, distance: 5.4, speed: 0.005 },
+    { color: 0xffe66d, size: 0.6, distance: 6.4, speed: 0.004 }
+  ];
+
+  const planets = [];
+  planetData.forEach((data) => {
+    const geo = new THREE.SphereGeometry(data.size, 16, 16);
+    const mat = new THREE.MeshBasicMaterial({ color: data.color });
+    const planet = new THREE.Mesh(geo, mat);
+    const angle = Math.random() * Math.PI * 2;
+    planet.position.x = data.distance * Math.cos(angle);
+    planet.position.z = data.distance * Math.sin(angle);
+    scene.add(planet);
+    
+    const orbitPoints = [];
+    const segments = 64;
+    for (let i = 0; i <= segments; i++) {
+      const angle2 = (i / segments) * Math.PI * 2;
+      orbitPoints.push(new THREE.Vector3(data.distance * Math.cos(angle2), 0, data.distance * Math.sin(angle2)));
+    }
+    const orbitGeo = new THREE.BufferGeometry().setFromPoints(orbitPoints);
+    const orbitMat = new THREE.LineBasicMaterial({ color: 0x444466, transparent: true, opacity: 0.3 });
+    const orbitLine = new THREE.Line(orbitGeo, orbitMat);
+    scene.add(orbitLine);
+    
+    planets.push({
+      mesh: planet,
+      distance: data.distance,
+      speed: data.speed,
+      angle: angle
+    });
+  });
+
+  let mouseX = 0, mouseY = 0;
+  let targetAngleX = 0, targetAngleY = 0.5;
+  const cameraDistance = 12;
+
+  document.addEventListener('mousemove', (event) => {
+    mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+    mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+  });
+
+  document.addEventListener('touchmove', (event) => {
+    if (event.touches.length > 0) {
+      mouseX = (event.touches[0].clientX / window.innerWidth) * 2 - 1;
+      mouseY = -(event.touches[0].clientY / window.innerHeight) * 2 + 1;
+    }
+  });
+
+  function animate() {
+    requestAnimationFrame(animate);
+
+    planets.forEach(p => {
+      p.angle += p.speed;
+      p.mesh.position.x = p.distance * Math.cos(p.angle);
+      p.mesh.position.z = p.distance * Math.sin(p.angle);
+      p.mesh.rotation.y += 0.02;
+    });
+
+    stars.rotation.y += 0.0002;
+    stars.rotation.x += 0.0001;
+
+    targetAngleX += (mouseX * 0.5 - targetAngleX) * 0.05;
+    targetAngleY += (mouseY * 0.3 + 0.5 - targetAngleY) * 0.05;
+    
+    const angleX = targetAngleX;
+    const angleY = Math.max(0.1, Math.min(1.5, targetAngleY));
+    
+    const x = cameraDistance * Math.sin(angleX) * Math.cos(angleY);
+    const y = cameraDistance * Math.sin(angleY);
+    const z = cameraDistance * Math.cos(angleX) * Math.cos(angleY);
+    
+    camera.position.x = x;
+    camera.position.y = y;
+    camera.position.z = z;
+    camera.lookAt(0, 0, 0);
+
+    renderer.render(scene, camera);
+  }
+
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+})();
+<\/script>
+</body>
+</html>`
+},
+{
+  id: 'default_3',
+  name: '🏎️ مسابقه ماشین',
+  type: 'html',
+  isDefault: true,
+  size: 4096,
+  author: 'Securolpicxews',
+  date: '1403/04/01',
+  content: `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { overflow: hidden; background: #1a1a2e; font-family: sans-serif; }
+  #score { position: absolute; top: 20px; right: 30px; color: #4ade80; font-size: 28px; font-weight: bold; z-index: 10; text-shadow: 0 0 20px rgba(74,222,128,0.3); }
+  #lives { position: absolute; top: 20px; left: 30px; color: #ff6b6b; font-size: 28px; z-index: 10; text-shadow: 0 0 20px rgba(255,107,107,0.3); }
+  #controls { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); color: #888; font-size: 14px; z-index: 10; background: rgba(0,0,0,0.5); padding: 8px 20px; border-radius: 10px; text-align: center; }
+  #gameOver {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 20;
+    display: none;
+    background: rgba(0,0,0,0.92);
+    padding: 40px 60px;
+    border-radius: 20px;
+    text-align: center;
+    border: 2px solid #ff6b6b;
+    box-shadow: 0 0 60px rgba(255,107,107,0.2);
+    min-width: 300px;
+  }
+  #gameOver h1 { color: #ff6b6b; font-size: 42px; margin-bottom: 10px; }
+  #gameOver .final-score { color: #4ade80; font-size: 24px; margin: 10px 0; }
+  #gameOver .final-score span { color: #ffd93d; font-size: 32px; }
+  #gameOver button {
+    margin-top: 20px;
+    padding: 12px 40px;
+    background: linear-gradient(135deg, #4ade80, #22d3ee);
+    border: none;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #1a1a2e;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  #gameOver button:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(74,222,128,0.3); }
+  #gameOver .emoji-big { font-size: 60px; display: block; margin-bottom: 10px; }
+  #combo { position: absolute; top: 70px; left: 50%; transform: translateX(-50%); color: #ffd93d; font-size: 20px; z-index: 10; opacity: 0; transition: all 0.3s ease; }
+</style>
+</head>
+<body>
+<div id="score">🏆 0</div>
+<div id="lives">❤️❤️❤️</div>
+<div id="combo">🔥 COMBO!</div>
+<div id="controls">⬅️ ➡️ یا A/D حرکت | ❤️ 3 جان | 💥 برخورد = -1 جان</div>
+<div id="gameOver">
+  <span class="emoji-big">💥</span>
+  <h1>بازی تمام شد!</h1>
+  <div class="final-score">امتیاز نهایی: <span id="finalScore">0</span></div>
+  <button onclick="location.reload()">🔄 بازی دوباره</button>
+</div>
+<canvas id="game"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const scoreEl = document.getElementById('score');
+  const livesEl = document.getElementById('lives');
+  const gameOverEl = document.getElementById('gameOver');
+  const finalScoreEl = document.getElementById('finalScore');
+  const comboEl = document.getElementById('combo');
+
+  let W = window.innerWidth;
+  let H = window.innerHeight;
+  canvas.width = W;
+  canvas.height = H;
+
+  const CAR_WIDTH = 40;
+  const CAR_HEIGHT = 60;
+  const LANE_WIDTH = Math.min(120, W * 0.15);
+  const ROAD_LEFT = (W - LANE_WIDTH * 3) / 2;
+  const ROAD_RIGHT = ROAD_LEFT + LANE_WIDTH * 3;
+
+  let carX = W / 2;
+  let score = 0;
+  let lives = 3;
+  let obstacles = [];
+  let frameCount = 0;
+  let gameRunning = true;
+  let keys = {};
+  let comboCount = 0;
+  let comboTimeout = null;
+  let difficulty = 1;
+
+  function updateLives() {
+    let hearts = '';
+    for (let i = 0; i < lives; i++) hearts += '❤️';
+    if (lives === 0) hearts = '💀';
+    livesEl.textContent = hearts;
+  }
+
+  function showCombo() {
+    comboEl.style.opacity = '1';
+    comboEl.textContent = '🔥 COMBO x' + comboCount + '!';
+    clearTimeout(comboTimeout);
+    comboTimeout = setTimeout(() => {
+      comboEl.style.opacity = '0';
+    }, 800);
+  }
+
+  function drawCar(x, y) {
+    ctx.save();
+    ctx.translate(x, y);
+    
+    ctx.shadowColor = 'rgba(255,107,107,0.3)';
+    ctx.shadowBlur = 30;
+    
+    const grad = ctx.createLinearGradient(-CAR_WIDTH/2, -CAR_HEIGHT/2, CAR_WIDTH/2, CAR_HEIGHT/2);
+    grad.addColorStop(0, '#ff6b6b');
+    grad.addColorStop(1, '#ee5a24');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.roundRect(-CAR_WIDTH/2, -CAR_HEIGHT/2, CAR_WIDTH, CAR_HEIGHT, 8);
+    ctx.fill();
+    
+    ctx.shadowBlur = 0;
+    
+    ctx.fillStyle = 'rgba(78, 205, 196, 0.8)';
+    ctx.beginPath();
+    ctx.roundRect(-CAR_WIDTH/2 + 6, -CAR_HEIGHT/2 + 4, CAR_WIDTH - 12, CAR_HEIGHT * 0.3, 4);
+    ctx.fill();
+    
+    ctx.fillStyle = '#ffd93d';
+    ctx.shadowColor = '#ffd93d';
+    ctx.shadowBlur = 15;
+    ctx.beginPath();
+    ctx.arc(-CAR_WIDTH/2 + 8, -CAR_HEIGHT/2 + 4, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(CAR_WIDTH/2 - 8, -CAR_HEIGHT/2 + 4, 5, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.shadowBlur = 0;
+    
+    ctx.fillStyle = '#1a1a2e';
+    ctx.beginPath();
+    ctx.arc(-CAR_WIDTH/2 + 6, -CAR_HEIGHT/2 + 12, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(CAR_WIDTH/2 - 6, -CAR_HEIGHT/2 + 12, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(-CAR_WIDTH/2 + 6, CAR_HEIGHT/2 - 12, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(CAR_WIDTH/2 - 6, CAR_HEIGHT/2 - 12, 6, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.restore();
+  }
+
+  function drawObstacle(x, y, color, size) {
+    ctx.save();
+    ctx.translate(x, y);
+    
+    const s = size || 25;
+    ctx.shadowColor = color + '66';
+    ctx.shadowBlur = 20;
+    
+    const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, s/2);
+    grad.addColorStop(0, color);
+    grad.addColorStop(1, color + '88');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.roundRect(-s/2, -s/2, s, s, 5);
+    ctx.fill();
+    
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    
+    ctx.restore();
+  }
+
+  function drawRoad() {
+    ctx.fillStyle = '#1a1a2e';
+    ctx.fillRect(0, 0, W, H);
+    
+    ctx.fillStyle = '#2a2a3e';
+    ctx.fillRect(ROAD_LEFT, 0, ROAD_RIGHT - ROAD_LEFT, H);
+    
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 3;
+    ctx.setLineDash([20, 30]);
+    const centerX = (ROAD_LEFT + ROAD_RIGHT) / 2;
+    ctx.beginPath();
+    ctx.moveTo(centerX, 0);
+    ctx.lineTo(centerX, H);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(ROAD_LEFT + 10, 0);
+    ctx.lineTo(ROAD_LEFT + 10, H);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(ROAD_RIGHT - 10, 0);
+    ctx.lineTo(ROAD_RIGHT - 10, H);
+    ctx.stroke();
+
+    // خطوط راهنما در پایین (برای نشان دادن مسیر)
+    ctx.fillStyle = 'rgba(74,222,128,0.03)';
+    ctx.fillRect(ROAD_LEFT, H/2 - 2, ROAD_RIGHT - ROAD_LEFT, 4);
+  }
+
+  if (!CanvasRenderingContext2D.prototype.roundRect) {
+    CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+      if (r > w/2) r = w/2;
+      if (r > h/2) r = h/2;
+      this.moveTo(x + r, y);
+      this.lineTo(x + w - r, y);
+      this.quadraticCurveTo(x + w, y, x + w, y + r);
+      this.lineTo(x + w, y + h - r);
+      this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      this.lineTo(x + r, y + h);
+      this.quadraticCurveTo(x, y + h, x, y + h - r);
+      this.lineTo(x, y + r);
+      this.quadraticCurveTo(x, y, x + r, y);
+      return this;
+    };
+  }
+
+  function spawnObstacle() {
+    const colors = ['#ff6b6b', '#ffd93d', '#4ecdc4', '#ff8a5c', '#a8e6cf', '#6c5ce7'];
+    const lane = Math.floor(Math.random() * 3);
+    const x = ROAD_LEFT + LANE_WIDTH * (lane + 0.5);
+    const size = 20 + Math.random() * 20;
+    obstacles.push({
+      x: x,
+      y: -size/2,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      size: size,
+      lane: lane,
+      speed: 3 + Math.random() * 2 + (score / 200)
+    });
+  }
+
+  function gameOver() {
+    gameRunning = false;
+    finalScoreEl.textContent = score;
+    gameOverEl.style.display = 'block';
+  }
+
+  function update() {
+    if (!gameRunning) return;
+    
+    frameCount++;
+    
+    // افزایش سختی
+    difficulty = 1 + Math.floor(score / 50);
+    const spawnRate = Math.max(15, 60 - difficulty * 3);
+    
+    // حرکت ماشین
+    const moveSpeed = 6 + (score / 100);
+    if (keys['ArrowLeft'] || keys['a'] || keys['A']) {
+      carX = Math.max(ROAD_LEFT + CAR_WIDTH/2 + 10, carX - moveSpeed);
+    }
+    if (keys['ArrowRight'] || keys['d'] || keys['D']) {
+      carX = Math.min(ROAD_RIGHT - CAR_WIDTH/2 - 10, carX + moveSpeed);
+    }
+    
+    // ایجاد مانع
+    if (frameCount % spawnRate === 0) {
+      spawnObstacle();
+      // گاهی اوقات دو مانع همزمان
+      if (Math.random() < 0.2 && score > 30) {
+        spawnObstacle();
+      }
+    }
+    
+    // حرکت موانع
+    for (let i = obstacles.length - 1; i >= 0; i--) {
+      const o = obstacles[i];
+      o.y += o.speed;
+      
+      // برخورد
+      const carY = H / 2;
+      const dx = Math.abs(o.x - carX);
+      const dy = Math.abs(o.y - carY);
+      const hitDist = (o.size + CAR_WIDTH) / 2 - 5;
+      
+      if (dx < hitDist && dy < (o.size + CAR_HEIGHT) / 2 - 5) {
+        lives--;
+        updateLives();
+        // افکت برخورد
+        ctx.fillStyle = 'rgba(255,0,0,0.3)';
+        ctx.fillRect(0, 0, W, H);
+        
+        if (lives <= 0) {
+          gameOver();
+          return;
+        }
+        
+        obstacles.splice(i, 1);
+        comboCount = 0;
+        continue;
+      }
+      
+      // خارج از صفحه
+      if (o.y > H + 50) {
+        const bonus = 10 + Math.floor(comboCount / 3) * 5;
+        score += bonus;
+        comboCount++;
+        if (comboCount >= 3) {
+          showCombo();
+        }
+        scoreEl.textContent = '🏆 ' + score;
+        obstacles.splice(i, 1);
+      }
+    }
+  }
+
+  function draw() {
+    drawRoad();
+    
+    obstacles.forEach(o => {
+      drawObstacle(o.x, o.y, o.color, o.size);
+    });
+    
+    drawCar(carX, H/2);
+    
+    // نمایش تعداد موانع
+    ctx.fillStyle = 'rgba(255,255,255,0.05)';
+    ctx.fillRect(0, 0, W, 2);
+  }
+
+  function gameLoop() {
+    update();
+    draw();
+    requestAnimationFrame(gameLoop);
+  }
+
+  // کنترل‌ها
+  document.addEventListener('keydown', e => {
+    keys[e.key] = true;
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
+      e.preventDefault();
+    }
+  });
+  document.addEventListener('keyup', e => {
+    keys[e.key] = false;
+  });
+
+  // پشتیبانی از لمس
+  let touchX = null;
+  canvas.addEventListener('touchstart', e => {
+    touchX = e.touches[0].clientX;
+    e.preventDefault();
+  });
+  canvas.addEventListener('touchmove', e => {
+    if (touchX !== null) {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.touches[0].clientX - rect.left;
+      carX = Math.max(ROAD_LEFT + CAR_WIDTH/2 + 10, Math.min(ROAD_RIGHT - CAR_WIDTH/2 - 10, x));
+    }
+    e.preventDefault();
+  });
+  canvas.addEventListener('touchend', () => {
+    touchX = null;
+  });
+
+  window.addEventListener('resize', () => {
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = W;
+    canvas.height = H;
+  });
+
+  updateLives();
+  gameLoop();
+})();
+<\/script>
+</body>
+</html>`
+}
+];
+
+class SecurolpicxewsApp{
+constructor(){
+this.currentUser=null;
+this.uploadedGames=[];
+this.publicGames=[];
+this.uploadType='html';
+this.currentGame=null;
+this.loadedScripts=new Set();
+this.storageAvailable = this.checkStorageAvailability();
+this.init();
+}
+
+checkStorageAvailability() {
+try {
+localStorage.setItem('test', 'test');
+localStorage.removeItem('test');
+return true;
+} catch(e) {
+try {
+sessionStorage.setItem('test', 'test');
+sessionStorage.removeItem('test');
+return true;
+} catch(e2) {
+return false;
+}
+}
+}
+
+getStorage() {
+if (this.storageAvailable) {
+try {
+return localStorage;
+} catch(e) {
+return sessionStorage;
+}
+}
+return {
+getItem: () => null,
+setItem: () => {},
+removeItem: () => {}
+};
+}
+
+init(){
+this.loadFromStorage();
+this.renderAll();
+this.setupDragDrop();
+}
+
+loadFromStorage(){
+const storage = this.getStorage();
+try {
+const users = JSON.parse(storage.getItem('sec_users') || '{}');
+const current = storage.getItem('sec_currentUser');
+this.uploadedGames = JSON.parse(storage.getItem('sec_uploadedGames') || '[]');
+this.publicGames = JSON.parse(storage.getItem('sec_publicGames') || '[]');
+if(current) {
+this.currentUser = JSON.parse(current);
+this.updateAuthUI();
+}
+} catch(e) {
+console.warn('Storage read error, using defaults');
+this.uploadedGames = [];
+this.publicGames = [];
+}
+}
+
+saveToStorage(){
+const storage = this.getStorage();
+try {
+storage.setItem('sec_uploadedGames', JSON.stringify(this.uploadedGames));
+storage.setItem('sec_publicGames', JSON.stringify(this.publicGames));
+if(this.currentUser) {
+storage.setItem('sec_currentUser', JSON.stringify(this.currentUser));
+}
+} catch(e) {
+console.warn('Storage write error');
+this.showNotification('⚠️ خطا در ذخیره‌سازی داده‌ها', 'error');
+}
+}
+
+hashPassword(p){
+let h=0;
+for(let i=0;i<p.length;i++)h=((h<<5)-h)+p.charCodeAt(i),h=h&h;
+return h.toString(16);
+}
+
+register(){
+const username=document.getElementById('regUsername').value.trim();
+const email=document.getElementById('regEmail').value.trim();
+const password=document.getElementById('regPassword').value;
+const confirm=document.getElementById('regPasswordConfirm').value;
+if(!username||!email||!password){this.showNotification('❌ همه فیلدها را پر کنید','error');return;}
+if(password!==confirm){this.showNotification('❌ رمز عبور یکسان نیست','error');return;}
+const storage = this.getStorage();
+const users=JSON.parse(storage.getItem('sec_users')||'{}');
+if(users[username]){this.showNotification('❌ نام کاربری قبلاً ثبت شده','error');return;}
+users[username]={username,email,passwordHash:this.hashPassword(password),isRegistered:true};
+storage.setItem('sec_users',JSON.stringify(users));
+this.currentUser=users[username];this.saveToStorage();this.updateAuthUI();
+this.showNotification('✅ ثبت نام موفق!','success');
+}
+
+login(){
+const username=document.getElementById('loginUsername').value.trim();
+const password=document.getElementById('loginPassword').value;
+if(!username||!password){this.showNotification('❌ همه فیلدها را پر کنید','error');return;}
+const storage = this.getStorage();
+const users=JSON.parse(storage.getItem('sec_users')||'{}');
+const user=users[username];
+if(!user||user.passwordHash!==this.hashPassword(password)){this.showNotification('❌ نام کاربری یا رمز عبور اشتباه','error');return;}
+this.currentUser=user;this.saveToStorage();this.updateAuthUI();
+this.showNotification('✅ خوش آمدید '+username+'!','success');
+}
+
+guestLogin(){
+this.currentUser={username:'مهمان_'+Math.floor(Math.random()*10000),isGuest:true,isRegistered:false};
+this.saveToStorage();this.updateAuthUI();
+this.showNotification('✅ ورود به عنوان مهمان','info');
+}
+
+logout(){
+this.currentUser=null;
+const storage = this.getStorage();
+storage.removeItem('sec_currentUser');
+this.updateAuthUI();this.showNotification('👋 خداحافظ!','info');
+}
+
+switchAuthTab(tab,el){
+document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('active'));
+document.querySelectorAll('.auth-form').forEach(f=>f.classList.remove('active'));
+el.classList.add('active');document.getElementById(tab+'Form').classList.add('active');
+}
+
+updateAuthUI(){
+const authPanel=document.getElementById('authPanel');
+const userPanel=document.getElementById('userPanel');
+const uploadPanel=document.getElementById('uploadPanel');
+const lockedPanel=document.getElementById('lockedPanel');
+if(this.currentUser){
+authPanel.style.display='none';userPanel.style.display='block';
+document.getElementById('userDisplayName').textContent='👤 '+this.currentUser.username;
+const badge=document.getElementById('userBadge');
+if(this.currentUser.isRegistered){badge.textContent='عضو';badge.className='badge';uploadPanel.style.display='block';lockedPanel.style.display='none';}
+else{badge.textContent='مهمان';badge.className='badge guest';uploadPanel.style.display='none';lockedPanel.style.display='block';}
+}else{
+authPanel.style.display='block';userPanel.style.display='none';
+uploadPanel.style.display='none';lockedPanel.style.display='none';
+}
+this.renderAll();
+}
+
+handleFiles(files){
+if(!this.currentUser||!this.currentUser.isRegistered){this.showNotification('❌ فقط اعضا می‌توانند آپلود کنند','error');return;}
+const isPublic=document.getElementById('publicUpload').checked;
+Array.from(files).forEach(file=>{
+const ext=file.name.split('.').pop().toLowerCase();
+if(this.uploadType==='html'&&ext==='html')this.uploadHTML(file,isPublic);
+else if(this.uploadType==='zip'&&ext==='zip')this.uploadZIP(file,isPublic);
+else this.showNotification('❌ فرمت نامعتبر: '+file.name,'error');
+});
+}
+
+uploadHTML(file,isPublic){
+const reader=new FileReader();
+reader.onload=(e)=>{
+const game={id:'g_'+Date.now()+'_'+Math.random().toString(36).substr(2,5),name:file.name.replace('.html',''),type:'html',content:e.target.result,size:file.size,date:new Date().toLocaleDateString('fa-IR'),owner:this.currentUser.username,isPublic};
+this.saveGame(game,isPublic);this.showNotification('✅ '+file.name+' آپلود شد!','success');
+};
+reader.readAsText(file);
+}
+
+uploadZIP(file,isPublic){
+this.loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js').then(()=>{
+const reader=new FileReader();
+reader.onload=(e)=>{
+const zip=new JSZip();
+zip.loadAsync(e.target.result).then((contents)=>{
+const files={};const promises=[];
+contents.forEach((rp,ze)=>{if(!ze.dir)promises.push(ze.async('text').then(c=>{files[rp]=c;}));});
+Promise.all(promises).then(()=>{
+const game={id:'g_'+Date.now()+'_'+Math.random().toString(36).substr(2,5),name:file.name.replace('.zip',''),type:'zip',files,size:file.size,date:new Date().toLocaleDateString('fa-IR'),owner:this.currentUser.username,isPublic};
+this.saveGame(game,isPublic);this.showNotification('✅ '+file.name+' آپلود شد!','success');
+});
+});
+};
+reader.readAsArrayBuffer(file);
+});
+}
+
+loadScript(src){
+return new Promise((resolve,reject)=>{
+if(typeof JSZip!=='undefined'){resolve();return;}
+const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>{
+this.showNotification('⚠️ خطا در بارگذاری کتابخانه','error');
+resolve();
+};
+document.head.appendChild(s);
+});
+}
+
+saveGame(game,isPublic){
+this.uploadedGames.push(game);this.saveToStorage();
+if(isPublic){const pd={...game};delete pd.content;delete pd.files;this.publicGames.push(pd);this.saveToStorage();}
+this.renderAll();
+}
+
+deleteGame(id){
+if(!confirm('آیا مطمئن هستید؟'))return;
+this.uploadedGames=this.uploadedGames.filter(g=>g.id!==id);
+this.publicGames=this.publicGames.filter(g=>g.id!==id);
+this.saveToStorage();this.renderAll();this.showNotification('🗑 بازی پاک شد','info');
+}
+
+setupDragDrop(){
+const dz=document.querySelector('.drop-zone');
+if(!dz)return;
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.style.borderColor='#4ade80';dz.style.background='rgba(74,222,128,0.05)';});
+dz.addEventListener('dragleave',()=>{dz.style.borderColor='';dz.style.background='';});
+dz.addEventListener('drop',e=>{e.preventDefault();dz.style.borderColor='';dz.style.background='';this.handleFiles(e.dataTransfer.files);});
+}
+
+renderAll(){this.renderDefaultGames();this.renderMyGames();this.renderPublicGames();}
+
+renderDefaultGames(){
+const container = document.getElementById('defaultGames');
+if(!container)return;
+container.innerHTML=DEFAULT_GAMES.map(g=>this.createGameCard(g,'default')).join('');
+}
+
+renderMyGames(){
+const c=document.getElementById('myGames');
+if(!c)return;
+if(!this.currentUser){c.innerHTML='<p style="color:#888;padding:20px;">لطفاً وارد شوید</p>';return;}
+const my=this.uploadedGames.filter(g=>g.owner===this.currentUser.username);
+if(!my.length){c.innerHTML='<p style="color:#888;padding:20px;">هنوز بازی‌ای آپلود نکرده‌اید</p>';return;}
+c.innerHTML=my.map(g=>this.createGameCard(g,'my')).join('');
+}
+
+renderPublicGames(){
+const c=document.getElementById('publicGames');
+if(!c)return;
+const pub=this.publicGames.filter(g=>!g.isDefault);
+if(!pub.length){c.innerHTML='<p style="color:#888;padding:20px;">هنوز بازی عمومی توسط کاربران آپلود نشده</p>';return;}
+c.innerHTML=pub.map(g=>this.createGameCard(g,'public')).join('');
+}
+
+createGameCard(game,section){
+const isDefault=game.isDefault;
+const isMy=section==='my';
+const tag=isDefault?'<span class="tag default">پیش‌فرض</span>':game.isPublic?'<span class="tag public">🌐 عمومی</span>':'<span class="tag private">🔒 خصوصی</span>';
+const author=game.author||game.owner||'ناشناس';
+const size=game.size<1024?game.size+' B':game.size<1048576?(game.size/1024).toFixed(1)+' KB':(game.size/1048576).toFixed(1)+' MB';
+const deleteBtn=isMy?`<button class="card-btn delete" onclick="app.deleteGame('${game.id}')">🗑</button>`:'';
+return `<div class="game-card"><div class="game-card-header"><div class="game-icon">${isDefault?'🎮':'📦'}</div><div><div class="game-card-title">${game.name}</div><div class="game-card-meta">${author} • ${size}</div></div></div><div class="game-card-tags">${tag}</div><div class="game-card-actions"><button class="card-btn play" onclick="app.playGame('${game.id}')">▶ اجرا</button>${deleteBtn}</div></div>`;
+}
+
+playGame(id){
+const game=DEFAULT_GAMES.find(g=>g.id===id)||this.uploadedGames.find(g=>g.id===id)||this.publicGames.find(g=>g.id===id);
+if(!game){this.showNotification('❌ بازی یافت نشد','error');return;}
+this.currentGame=game;
+document.getElementById('overlayTitle').textContent=game.name;
+document.getElementById('gameOverlay').classList.add('active');
+document.getElementById('gameLoading').classList.remove('hidden');
+document.getElementById('overlayStatus').textContent='Loading...';
+document.getElementById('overlayStatus').style.color='#fbbf24';
+const area=document.getElementById('gameCanvasArea');
+
+area.innerHTML = '';
+const loadingDiv = document.createElement('div');
+loadingDiv.className = 'loading-screen';
+loadingDiv.id = 'gameLoading';
+loadingDiv.innerHTML = `<div class="spinner"></div><div style="color:#888;font-size:14px">در حال بارگذاری بازی...</div>`;
+area.appendChild(loadingDiv);
+
+try {
+if(game.type==='html') {
+this.runHTMLGame(game.content, area);
+} else if(game.type==='zip') {
+this.runZIPGame(game.files, area);
+}
+} catch(e) {
+console.error('Game load error:', e);
+this.showNotification('⚠️ خطا در اجرای بازی', 'error');
+document.getElementById('gameLoading').classList.add('hidden');
+document.getElementById('overlayStatus').textContent='Error';
+document.getElementById('overlayStatus').style.color='#f87171';
+return;
+}
+
+setTimeout(()=>{
+const loading = document.getElementById('gameLoading');
+if(loading) loading.classList.add('hidden');
+document.getElementById('overlayStatus').textContent='Running';
+document.getElementById('overlayStatus').style.color='#4ade80';
+}, 1500);
+}
+
+runHTMLGame(content, area){
+try {
+const iframe = document.createElement('iframe');
+iframe.style.width = '100%';
+iframe.style.height = '100%';
+iframe.style.border = 'none';
+iframe.style.background = '#0a0a1a';
+iframe.sandbox = 'allow-scripts allow-same-origin allow-modals allow-popups allow-forms';
+iframe.allow = 'fullscreen';
+
+let finalContent = content;
+if (!finalContent.includes('<!DOCTYPE html>')) {
+finalContent = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 100vw; height: 100vh; overflow: hidden; background: #0a0a1a; }
+</style>
+</head>
+<body>
+${finalContent}
+</body>
+</html>`;
+}
+
+iframe.srcdoc = finalContent;
+area.innerHTML = '';
+area.appendChild(iframe);
+
+iframe.addEventListener('load', () => {
+try {
+const doc = iframe.contentDocument || iframe.contentWindow?.document;
+if (doc) {
+console.log('Game loaded successfully');
+}
+} catch(e) {
+console.warn('Could not access iframe content:', e);
+}
+});
+
+} catch(e) {
+console.error('HTML game execution error:', e);
+this.showNotification('⚠️ خطا در اجرای بازی HTML', 'error');
+throw e;
+}
+}
+
+runZIPGame(files, area){
+try {
+let mainHtml=null;
+for(const p in files){
+if(p.endsWith('.html')||p.endsWith('.htm')){
+mainHtml=files[p];
+break;
+}
+}
+if(!mainHtml){
+this.showNotification('❌ فایل HTML در ZIP پیدا نشد','error');
+return;
+}
+this.runHTMLGame(mainHtml, area);
+} catch(e) {
+console.error('ZIP game execution error:', e);
+this.showNotification('⚠️ خطا در اجرای بازی ZIP', 'error');
+throw e;
+}
+}
+
+closeGame(){
+document.getElementById('gameOverlay').classList.remove('active');
+const area = document.getElementById('gameCanvasArea');
+if(area) {
+area.innerHTML = `<div class="loading-screen" id="gameLoading"><div class="spinner"></div><div style="color:#888;font-size:14px">در حال بارگذاری بازی...</div></div>`;
+}
+this.currentGame=null;
+}
+
+refreshGame(){if(this.currentGame)this.playGame(this.currentGame.id);}
+
+toggleFullscreen(){
+try {
+if(!document.fullscreenElement && !document.webkitFullscreenElement) {
+const el = document.documentElement;
+if(el.requestFullscreen) {
+el.requestFullscreen();
+} else if(el.webkitRequestFullscreen) {
+el.webkitRequestFullscreen();
+}
+} else {
+if(document.exitFullscreen) {
+document.exitFullscreen();
+} else if(document.webkitExitFullscreen) {
+document.webkitExitFullscreen();
+}
+}
+} catch(e) {
+console.warn('Fullscreen error:', e);
+}
+}
+
+showNotification(msg,type){
+const colors={success:'#4ade80',error:'#f87171',info:'#60a5fa'};
+const n=document.createElement('div');
+n.className='notification';
+n.textContent=msg;
+n.style.background=colors[type] || colors.info;
+n.style.color='#1a1a2e';
+document.body.appendChild(n);
+setTimeout(()=>{
+n.style.opacity='0';
+n.style.transition='opacity 0.3s';
+setTimeout(()=>n.remove(),300);
+},3000);
+}
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+window.app = new SecurolpicxewsApp();
+});
+</script>
+</body>
+</html>
