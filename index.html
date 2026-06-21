@@ -192,7 +192,719 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 </div>
 </div>
 <script>
-// بازی‌های پیش‌فرض با three.js و بازی مسابقه ماشین با Game Over
+// بازی Open-3D-ReMaKe² - یک بازی سه‌بعدی جنگی با موتور Three.js
+const OPEN_3D_GAME = `<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Open3D: نبرد نهایی - جنگجوی موبایل</title>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: 'Tahoma', 'Segoe UI', sans-serif; background-color: #000; touch-action: none; }
+        #ui-layer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .menu-box {
+            background: rgba(0, 0, 0, 0.85);
+            padding: 30px 20px;
+            border-radius: 25px;
+            text-align: center;
+            color: white;
+            pointer-events: auto;
+            border: 2px solid #ffaa00;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+        h1 { color: #ffaa00; margin-bottom: 10px; text-shadow: 0 0 5px #ff6600; }
+        input {
+            padding: 12px;
+            font-size: 18px;
+            border-radius: 40px;
+            border: none;
+            margin: 15px 0;
+            width: 220px;
+            text-align: center;
+            background: #222;
+            color: white;
+            font-weight: bold;
+        }
+        button {
+            padding: 12px 30px;
+            font-size: 20px;
+            background-color: #ff6600;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.1s ease;
+        }
+        button:active { transform: scale(0.96); }
+        #game-ui {
+            position: absolute;
+            top: 10px;
+            width: 100%;
+            display: none;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-sizing: border-box;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px black;
+            pointer-events: none;
+            z-index: 15;
+            font-size: 14px;
+        }
+        #boss-warning {
+            position: absolute;
+            top: 20%;
+            width: 100%;
+            text-align: center;
+            color: #ff3300;
+            font-size: 28px;
+            font-weight: bold;
+            display: none;
+            animation: blink 0.8s infinite;
+            text-shadow: 0 0 10px red;
+            z-index: 25;
+            pointer-events: none;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+        #controls-hint {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            color: rgba(255,255,255,0.6);
+            font-size: 10px;
+            background: rgba(0,0,0,0.5);
+            padding: 5px 8px;
+            border-radius: 12px;
+            direction: ltr;
+            z-index: 20;
+            pointer-events: none;
+        }
+        #status-bar {
+            position: absolute;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            color: #ff8888;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 5px 15px;
+            border-radius: 30px;
+            display: none;
+            z-index: 20;
+            white-space: nowrap;
+        }
+        #wave-info {
+            position: absolute;
+            top: 110px;
+            width: 100%;
+            text-align: center;
+            color: #ffff88;
+            font-size: 18px;
+            font-weight: bold;
+            display: none;
+            text-shadow: 1px 1px 0 black;
+            z-index: 20;
+            pointer-events: none;
+        }
+        #victory-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: gold;
+            font-size: 32px;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+        }
+        .joystick-container {
+            position: absolute;
+            bottom: 80px;
+            left: 30px;
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            background: rgba(30,30,40,0.7);
+            backdrop-filter: blur(8px);
+            border: 2px solid rgba(255,255,255,0.5);
+            z-index: 30;
+            touch-action: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .joystick-base {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            background: rgba(0,0,0,0.4);
+        }
+        .joystick-thumb {
+            width: 55px;
+            height: 55px;
+            background: #ffaa33;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            border: 2px solid white;
+            transition: transform 0.02s;
+            cursor: pointer;
+        }
+        .shoot-btn {
+            position: absolute;
+            bottom: 90px;
+            right: 30px;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ff4444, #aa0000);
+            border: 3px solid #ffaa66;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 0 5px black;
+            z-index: 30;
+            box-shadow: 0 0 15px rgba(0,0,0,0.6);
+            cursor: pointer;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        .shoot-btn:active { transform: scale(0.94); background: radial-gradient(circle at 30% 30%, #ff6666, #cc0000); }
+        .camera-hint {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.5);
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 10px;
+            color: #ccc;
+            pointer-events: none;
+            z-index: 20;
+        }
+        @media (max-width: 700px) {
+            .joystick-container { width: 110px; height: 110px; bottom: 70px; left: 20px; }
+            .joystick-thumb { width: 45px; height: 45px; }
+            .shoot-btn { width: 70px; height: 70px; bottom: 80px; right: 20px; font-size: 24px; }
+            #game-ui { font-size: 12px; }
+        }
+        #p-hp { color: #ffaa66; font-weight: bold; }
+        #e-units { color: #ff6666; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>
+</head>
+<body>
+    <div id="ui-layer">
+        <div class="menu-box" id="start-menu">
+            <h1>🔥 Open3D: نبرد نهایی 🔥</h1>
+            <p>نام کشور خود را وارد کنید:</p>
+            <input type="text" id="player-name-input" placeholder="مثلا: ایران" value="ایران">
+            <br>
+            <button onclick="startGame()">شلیک کن! 🚀</button>
+            <p style="font-size:12px; margin-top:15px;">🎮 حرکت: جوی استیک چپ | 🔫 شلیک: دکمه قرمز</p>
+        </div>
+    </div>
+    <div id="game-ui">
+        <div id="player-info">🛡️ <span id="p-name"></span> | ❤️ <span id="p-hp">100</span></div>
+        <div id="enemy-info">👾 <span id="e-name"></span> | تعداد: <span id="e-units">0</span></div>
+    </div>
+    <div id="boss-warning">⚠️ هشدار! فرمانده دشمن ⚠️</div>
+    <div id="wave-info"></div>
+    <div id="status-bar">💥 برخورد: <span id="hits-count">0</span> / 3</div>
+    <div id="controls-hint">⌨️ WASD + فلش | 📱 جوی استیک چپ | 🔴 شلیک: دکمه قرمز</div>
+    <div class="camera-hint">🎥 دوربین: دو انگشت بکشید (اختیاری)</div>
+    <div id="joyContainer" class="joystick-container" style="display: none;">
+        <div class="joystick-base">
+            <div id="joyThumb" class="joystick-thumb"></div>
+        </div>
+    </div>
+    <div id="shootButton" class="shoot-btn" style="display: none;">🔫</div>
+    <div id="victory-screen">
+        <h1>🏆 پیروزی بزرگ! 🏆</h1>
+        <p>ربات نهایی منهدم شد!</p>
+        <button onclick="location.reload()">بازی دوباره</button>
+    </div>
+    <script>
+        let scene, camera, renderer;
+        let player, ground;
+        let playerSpeed = 0.32;
+        let cameraSpeed = 0.04;
+        let isGameActive = false;
+        let playerName = "";
+        let enemyName = "";
+        let enemyUnits = [];
+        let bullets = []; 
+        let bossEnemy = null;
+        let hitsTaken = 0;
+        const maxHits = 3;
+        let playerHealth = 100;
+        let wave = 1;
+        const keys = { w: false, a: false, s: false, d: false, ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
+        let cameraAngle = 0; 
+        let cameraHeight = 18;
+        let cameraDistance = 28;
+        let joyActive = false;
+        let joyX = 0, joyY = 0;
+        let moveDirection = { x: 0, z: 0 };
+        const botNames = ["امپراتوری سایه", "اتحاد سرخ", "شورای آهنین", "لژیون جهنمی"];
+        let spawnInterval = null;
+
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x071A3B);
+            scene.fog = new THREE.FogExp2(0x071A3B, 0.008);
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            document.body.appendChild(renderer.domElement);
+            const ambientLight = new THREE.AmbientLight(0x404060, 0.65);
+            scene.add(ambientLight);
+            const dirLight = new THREE.DirectionalLight(0xfff5e0, 1.0);
+            dirLight.position.set(30, 45, 20);
+            dirLight.castShadow = true;
+            dirLight.receiveShadow = true;
+            scene.add(dirLight);
+            const backLight = new THREE.PointLight(0x4466cc, 0.4);
+            backLight.position.set(-10, 20, -20);
+            scene.add(backLight);
+            const groundGeo = new THREE.PlaneGeometry(220, 220);
+            const groundMat = new THREE.MeshStandardMaterial({ color: 0x2c5e2e, roughness: 0.8, metalness: 0.1 });
+            ground = new THREE.Mesh(groundGeo, groundMat);
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+            const gridHelper = new THREE.GridHelper(200, 30, 0x88aa88, 0x446644);
+            gridHelper.position.y = 0.02;
+            scene.add(gridHelper);
+            document.addEventListener('keydown', (e) => {
+                const key = e.key;
+                if (key === 'w' || key === 'W') keys.w = true;
+                if (key === 'a' || key === 'A') keys.a = true;
+                if (key === 's' || key === 'S') keys.s = true;
+                if (key === 'd' || key === 'D') keys.d = true;
+                if (key === 'ArrowUp') keys.ArrowUp = true;
+                if (key === 'ArrowDown') keys.ArrowDown = true;
+                if (key === 'ArrowLeft') keys.ArrowLeft = true;
+                if (key === 'ArrowRight') keys.ArrowRight = true;
+                if (key === '1' || key === ' ') { e.preventDefault(); shootBullet(); }
+            });
+            document.addEventListener('keyup', (e) => {
+                const key = e.key;
+                if (key === 'w' || key === 'W') keys.w = false;
+                if (key === 'a' || key === 'A') keys.a = false;
+                if (key === 's' || key === 'S') keys.s = false;
+                if (key === 'd' || key === 'D') keys.d = false;
+                if (key === 'ArrowUp') keys.ArrowUp = false;
+                if (key === 'ArrowDown') keys.ArrowDown = false;
+                if (key === 'ArrowLeft') keys.ArrowLeft = false;
+                if (key === 'ArrowRight') keys.ArrowRight = false;
+            });
+            setupJoystick();
+            setupShootButton();
+            animate();
+        }
+
+        function setupJoystick() {
+            const container = document.getElementById('joyContainer');
+            const thumb = document.getElementById('joyThumb');
+            let active = false;
+            const handleMove = (clientX, clientY) => {
+                if (!active) return;
+                const rect = container.getBoundingClientRect();
+                const baseX = rect.left + rect.width/2;
+                const baseY = rect.top + rect.height/2;
+                let dx = clientX - baseX;
+                let dy = clientY - baseY;
+                const maxDist = rect.width/2 - 10;
+                let dist = Math.hypot(dx, dy);
+                if (dist > maxDist) {
+                    dx = dx / dist * maxDist;
+                    dy = dy / dist * maxDist;
+                    dist = maxDist;
+                }
+                thumb.style.transform = \`translate(calc(-50% + \${dx}px), calc(-50% + \${dy}px))\`;
+                let normX = dx / maxDist;
+                let normY = dy / maxDist;
+                joyX = normX;
+                joyY = normY;
+                moveDirection.x = joyX;
+                moveDirection.z = joyY;
+            };
+            const startTouch = (e) => {
+                e.preventDefault();
+                active = true;
+                const touch = e.touches[0];
+                handleMove(touch.clientX, touch.clientY);
+            };
+            const onMove = (e) => {
+                if (!active) return;
+                const touch = e.touches[0];
+                handleMove(touch.clientX, touch.clientY);
+            };
+            const endTouch = () => {
+                active = false;
+                thumb.style.transform = 'translate(-50%, -50%)';
+                joyX = 0; joyY = 0;
+                moveDirection.x = 0;
+                moveDirection.z = 0;
+            };
+            container.addEventListener('touchstart', startTouch);
+            container.addEventListener('touchmove', onMove);
+            container.addEventListener('touchend', endTouch);
+            container.addEventListener('touchcancel', endTouch);
+        }
+
+        function setupShootButton() {
+            const btn = document.getElementById('shootButton');
+            btn.addEventListener('touchstart', (e) => { e.preventDefault(); shootBullet(); });
+            btn.addEventListener('mousedown', (e) => { e.preventDefault(); shootBullet(); });
+        }
+
+        function startGame() {
+            const inputName = document.getElementById('player-name-input').value;
+            if (!inputName.trim()) return;
+            playerName = inputName;
+            enemyName = botNames[Math.floor(Math.random() * botNames.length)];
+            document.getElementById('ui-layer').style.display = 'none';
+            document.getElementById('game-ui').style.display = 'flex';
+            document.getElementById('p-name').innerText = playerName;
+            document.getElementById('e-name').innerText = enemyName;
+            player = new THREE.Mesh(new THREE.SphereGeometry(1.1, 32, 32), new THREE.MeshStandardMaterial({ color: 0x3a86ff, emissive: 0x001133, metalness: 0.7 }));
+            player.castShadow = true;
+            player.position.set(0, 1.1, 0);
+            scene.add(player);
+            const aura = new THREE.PointLight(0x2288ff, 0.8, 15);
+            player.add(aura);
+            hitsTaken = 0;
+            enemyUnits = [];
+            bullets = [];
+            bossEnemy = null;
+            wave = 1;
+            cameraAngle = 0;
+            cameraHeight = 18;
+            cameraDistance = 28;
+            document.getElementById('hits-count').innerText = "0";
+            document.getElementById('status-bar').style.display = 'none';
+            document.getElementById('wave-info').style.display = 'none';
+            document.getElementById('victory-screen').style.display = 'none';
+            document.getElementById('boss-warning').style.display = 'none';
+            document.getElementById('p-hp').innerText = "100";
+            playerHealth = 100;
+            updateEnemyCount();
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if (isMobile) {
+                document.getElementById('joyContainer').style.display = 'flex';
+                document.getElementById('shootButton').style.display = 'flex';
+            } else {
+                document.getElementById('joyContainer').style.display = 'none';
+                document.getElementById('shootButton').style.display = 'none';
+            }
+            startBotSpawner();
+            isGameActive = true;
+        }
+
+        function startBotSpawner() {
+            if (spawnInterval) clearInterval(spawnInterval);
+            spawnInterval = setInterval(() => {
+                if (!isGameActive) { clearInterval(spawnInterval); spawnInterval = null; return; }
+                if (bossEnemy) return;
+                if (wave === 3 && bossEnemy) return;
+                if (wave === 2 && enemyUnits.length > 12) return;
+                if (wave === 1 && enemyUnits.length > 8) return;
+                const startX = (Math.random() - 0.5) * 100;
+                const startZ = (Math.random() - 0.5) * 100;
+                if (player && Math.hypot(startX - player.position.x, startZ - player.position.z) > 12) {
+                    createEnemyUnit(startX, startZ);
+                    updateEnemyCount();
+                }
+            }, 2200);
+        }
+
+        function createEnemyUnit(x, z) {
+            let color = 0xE34234;
+            let hp = 3;
+            let isAdvanced = false;
+            if (wave === 2) {
+                color = 0xAA6DC9; 
+                hp = 45;
+                isAdvanced = true;
+            } else if (wave === 3) {
+                color = 0xFF8C42; 
+                hp = 120;
+                isAdvanced = true;
+            }
+            const geometry = new THREE.SphereGeometry(0.95, 24, 24);
+            const material = new THREE.MeshStandardMaterial({ color: color, emissive: isAdvanced ? 0x331100 : 0x220000 });
+            const unit = new THREE.Mesh(geometry, material);
+            unit.position.set(x, 1, z);
+            unit.castShadow = true;
+            unit.userData = { 
+                type: 'enemy', 
+                hp: hp, 
+                speed: isAdvanced ? 0.19 : 0.07, 
+                isAdvanced: isAdvanced,
+                dodgeTimer: Math.random() * 10
+            };
+            scene.add(unit);
+            enemyUnits.push(unit);
+        }
+
+        function shootBullet() {
+            if (!isGameActive || !player) return;
+            let targetDir = new THREE.Vector3();
+            if (bossEnemy) {
+                targetDir.subVectors(bossEnemy.position, player.position).normalize();
+            } else if (enemyUnits.length > 0) {
+                let nearest = null;
+                let minDist = Infinity;
+                enemyUnits.forEach(unit => {
+                    let d = player.position.distanceTo(unit.position);
+                    if (d < minDist) { minDist = d; nearest = unit; }
+                });
+                if (nearest) targetDir.subVectors(nearest.position, player.position).normalize();
+                else targetDir.set(0, 0, -1);
+            } else {
+                targetDir.set(0, 0, -1);
+            }
+            const geometry = new THREE.SphereGeometry(0.35, 8, 8);
+            const material = new THREE.MeshStandardMaterial({ color: 0xffaa44, emissive: 0x442200 });
+            const bullet = new THREE.Mesh(geometry, material);
+            bullet.position.copy(player.position);
+            bullet.position.y = 1.2;
+            bullet.userData = { velocity: targetDir.clone().multiplyScalar(2.2), life: 90 };
+            scene.add(bullet);
+            bullets.push(bullet);
+        }
+
+        function updateEnemyCount() {
+            document.getElementById('e-units').innerText = enemyUnits.length;
+        }
+
+        function checkBossCondition() {
+            if (enemyUnits.length === 0 && !bossEnemy && isGameActive && wave < 3) {
+                triggerBossFight();
+            }
+            if (wave === 3 && !bossEnemy && enemyUnits.length === 0) {
+                document.getElementById('victory-screen').style.display = 'flex';
+                isGameActive = false;
+                if (spawnInterval) { clearInterval(spawnInterval); spawnInterval = null; }
+            }
+        }
+
+        function triggerBossFight() {
+            document.getElementById('boss-warning').style.display = 'block';
+            setTimeout(() => { if(isGameActive) document.getElementById('boss-warning').style.display = 'none'; }, 3000);
+            if (wave === 1) {
+                const bossGeo = new THREE.BoxGeometry(2.2, 2.8, 2.2);
+                const bossMat = new THREE.MeshStandardMaterial({ color: 0x9e2a2a, metalness: 0.7 });
+                bossEnemy = new THREE.Mesh(bossGeo, bossMat);
+                bossEnemy.position.set(player.position.x + 12, 1.5, player.position.z + 8);
+                bossEnemy.userData = { type: 'boss', hp: 45, speed: 0.12, isAdvanced: false };
+                scene.add(bossEnemy);
+                document.getElementById('e-name').innerHTML = enemyName + " (ژنرال خشمگین)";
+            } else if (wave === 2) {
+                wave = 3;
+                document.getElementById('wave-info').style.display = 'block';
+                document.getElementById('wave-info').innerHTML = "🤖 هشدار: ربات نهایی فرا رسید! مقاومت نهایی 🤖";
+                document.getElementById('e-name').innerText = "ربات نهایی X-9000";
+                const botGeo = new THREE.BoxGeometry(2.4, 4.2, 2.4);
+                const botMat = new THREE.MeshStandardMaterial({ color: 0xFF5500, emissive: 0x442200 });
+                bossEnemy = new THREE.Mesh(botGeo, botMat);
+                bossEnemy.position.set(player.position.x + 18, 2.2, player.position.z + 10);
+                bossEnemy.userData = { type: 'boss', hp: 135, speed: 0.26, isAdvanced: true };
+                scene.add(bossEnemy);
+            }
+        }
+
+        function updatePlayerMovement() {
+            if (!player) return;
+            let moveX = 0, moveZ = 0;
+            if (keys.w) moveZ -= 1;
+            if (keys.s) moveZ += 1;
+            if (keys.a) moveX -= 1;
+            if (keys.d) moveX += 1;
+            if (Math.abs(moveDirection.x) > 0.05 || Math.abs(moveDirection.z) > 0.05) {
+                moveX = moveDirection.x;
+                moveZ = moveDirection.z;
+            }
+            if (moveX !== 0 || moveZ !== 0) {
+                const len = Math.hypot(moveX, moveZ);
+                moveX /= len;
+                moveZ /= len;
+                player.position.x += moveX * playerSpeed;
+                player.position.z += moveZ * playerSpeed;
+            }
+            if (keys.ArrowLeft) cameraAngle += cameraSpeed;
+            if (keys.ArrowRight) cameraAngle -= cameraSpeed;
+            if (keys.ArrowUp) cameraHeight = Math.min(45, cameraHeight + 0.6);
+            if (keys.ArrowDown) cameraHeight = Math.max(7, cameraHeight - 0.6);
+            player.position.x = Math.min(95, Math.max(-95, player.position.x));
+            player.position.z = Math.min(95, Math.max(-95, player.position.z));
+            const camX = player.position.x + Math.sin(cameraAngle) * cameraDistance;
+            const camZ = player.position.z + Math.cos(cameraAngle) * cameraDistance;
+            camera.position.set(camX, cameraHeight, camZ);
+            camera.lookAt(player.position);
+        }
+
+        function updateBullets() {
+            for (let i=bullets.length-1; i>=0; i--) {
+                const b = bullets[i];
+                b.position.add(b.userData.velocity);
+                b.userData.life--;
+                let hit = false;
+                for (let j=enemyUnits.length-1; j>=0; j--) {
+                    const e = enemyUnits[j];
+                    if (b.position.distanceTo(e.position) < 1.4) {
+                        e.userData.hp -= 8;
+                        e.material.emissiveIntensity = 0.5;
+                        setTimeout(()=> { if(e) e.material.emissiveIntensity = 0; }, 80);
+                        if (e.userData.hp <= 0) {
+                            scene.remove(e);
+                            enemyUnits.splice(j,1);
+                            updateEnemyCount();
+                            checkBossCondition();
+                        }
+                        hit = true;
+                        break;
+                    }
+                }
+                if (!hit && bossEnemy && b.position.distanceTo(bossEnemy.position) < 2.2) {
+                    bossEnemy.userData.hp -= 7;
+                    bossEnemy.material.emissiveIntensity = 0.7;
+                    setTimeout(()=> { if(bossEnemy) bossEnemy.material.emissiveIntensity = 0; }, 100);
+                    if (bossEnemy.userData.hp <= 0) {
+                        scene.remove(bossEnemy);
+                        bossEnemy = null;
+                        if (wave === 1) {
+                            wave = 2;
+                            document.getElementById('wave-info').style.display = 'block';
+                            document.getElementById('wave-info').innerHTML = "⚔️ موج دوم: دشمنان بنفش (فرار و طفره) ⚔️";
+                            enemyUnits = [];
+                            updateEnemyCount();
+                            if (spawnInterval) { clearInterval(spawnInterval); spawnInterval = null; }
+                            startBotSpawner();
+                        } else if (wave === 3) {
+                            document.getElementById('victory-screen').style.display = 'flex';
+                            isGameActive = false;
+                            if (spawnInterval) { clearInterval(spawnInterval); spawnInterval = null; }
+                            return;
+                        }
+                    }
+                    hit = true;
+                }
+                if (hit || b.userData.life <= 0 || b.position.y < -2 || Math.abs(b.position.x) > 110 || Math.abs(b.position.z) > 110) {
+                    scene.remove(b);
+                    bullets.splice(i,1);
+                }
+            }
+        }
+
+        function updateEnemies() {
+            for (let i=enemyUnits.length-1; i>=0; i--) {
+                const unit = enemyUnits[i];
+                if (!unit) continue;
+                if (unit.userData.isAdvanced) {
+                    unit.userData.dodgeTimer += 0.07;
+                    const zigzag = Math.sin(unit.userData.dodgeTimer) * 0.18;
+                    let direction = new THREE.Vector3().subVectors(player.position, unit.position).normalize();
+                    direction.x += zigzag;
+                    direction.z += Math.cos(unit.userData.dodgeTimer)*0.1;
+                    direction.normalize();
+                    unit.position.add(direction.multiplyScalar(unit.userData.speed));
+                    for(let b of bullets) {
+                        if(unit.position.distanceTo(b.position) < 5.5) {
+                            let fleeDir = new THREE.Vector3().subVectors(unit.position, b.position).normalize();
+                            unit.position.add(fleeDir.multiplyScalar(0.45));
+                        }
+                    }
+                    unit.lookAt(player.position);
+                } else {
+                    const direction = new THREE.Vector3().subVectors(player.position, unit.position).normalize();
+                    unit.position.add(direction.multiplyScalar(unit.userData.speed));
+                    unit.lookAt(player.position);
+                }
+                if (unit.position.distanceTo(player.position) < 2.0) {
+                    hitsTaken++;
+                    document.getElementById('hits-count').innerText = hitsTaken;
+                    document.getElementById('status-bar').style.display = 'block';
+                    scene.remove(unit);
+                    enemyUnits.splice(i,1);
+                    updateEnemyCount();
+                    if (hitsTaken >= maxHits) {
+                        alert(\`شکست! \${playerName} پس از \${maxHits} برخورد نابود شد.\`);
+                        location.reload();
+                    }
+                    continue;
+                }
+            }
+        }
+
+        function updateBoss() {
+            if (!bossEnemy) return;
+            if (bossEnemy.userData.isAdvanced) {
+                for(let b of bullets) {
+                    if(bossEnemy.position.distanceTo(b.position) < 7) {
+                        let dirAway = new THREE.Vector3().subVectors(bossEnemy.position, b.position).normalize();
+                        bossEnemy.position.add(dirAway.multiplyScalar(0.55));
+                    }
+                }
+            }
+            const direction = new THREE.Vector3().subVectors(player.position, bossEnemy.position).normalize();
+            bossEnemy.position.add(direction.multiplyScalar(bossEnemy.userData.speed));
+            bossEnemy.lookAt(player.position);
+            if (bossEnemy.position.distanceTo(player.position) < 2.4) {
+                hitsTaken++;
+                document.getElementById('hits-count').innerText = hitsTaken;
+                document.getElementById('status-bar').style.display = 'block';
+                if (hitsTaken >= maxHits) {
+                    alert("نبرد سخت بود... شما مغلوب شدید!");
+                    location.reload();
+                }
+                const push = new THREE.Vector3().subVectors(bossEnemy.position, player.position).normalize().multiplyScalar(3);
+                bossEnemy.position.add(push);
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (isGameActive && player) {
+                updatePlayerMovement();
+                updateEnemies();
+                updateBoss();
+                updateBullets();
+                document.getElementById('p-hp').innerText = Math.max(0, 100 - hitsTaken*33);
+            }
+            renderer.render(scene, camera);
+        }
+
+        init();
+    <\/script>
+</body>
+</html>`;
+
+// بازی‌های پیش‌فرض
 const DEFAULT_GAMES = [
 {
   id: 'default_1',
@@ -672,7 +1384,6 @@ const DEFAULT_GAMES = [
     ctx.lineTo(ROAD_RIGHT - 10, H);
     ctx.stroke();
 
-    // خطوط راهنما در پایین (برای نشان دادن مسیر)
     ctx.fillStyle = 'rgba(74,222,128,0.03)';
     ctx.fillRect(ROAD_LEFT, H/2 - 2, ROAD_RIGHT - ROAD_LEFT, 4);
   }
@@ -720,11 +1431,9 @@ const DEFAULT_GAMES = [
     
     frameCount++;
     
-    // افزایش سختی
     difficulty = 1 + Math.floor(score / 50);
     const spawnRate = Math.max(15, 60 - difficulty * 3);
     
-    // حرکت ماشین
     const moveSpeed = 6 + (score / 100);
     if (keys['ArrowLeft'] || keys['a'] || keys['A']) {
       carX = Math.max(ROAD_LEFT + CAR_WIDTH/2 + 10, carX - moveSpeed);
@@ -733,21 +1442,17 @@ const DEFAULT_GAMES = [
       carX = Math.min(ROAD_RIGHT - CAR_WIDTH/2 - 10, carX + moveSpeed);
     }
     
-    // ایجاد مانع
     if (frameCount % spawnRate === 0) {
       spawnObstacle();
-      // گاهی اوقات دو مانع همزمان
       if (Math.random() < 0.2 && score > 30) {
         spawnObstacle();
       }
     }
     
-    // حرکت موانع
     for (let i = obstacles.length - 1; i >= 0; i--) {
       const o = obstacles[i];
       o.y += o.speed;
       
-      // برخورد
       const carY = H / 2;
       const dx = Math.abs(o.x - carX);
       const dy = Math.abs(o.y - carY);
@@ -756,7 +1461,6 @@ const DEFAULT_GAMES = [
       if (dx < hitDist && dy < (o.size + CAR_HEIGHT) / 2 - 5) {
         lives--;
         updateLives();
-        // افکت برخورد
         ctx.fillStyle = 'rgba(255,0,0,0.3)';
         ctx.fillRect(0, 0, W, H);
         
@@ -770,7 +1474,6 @@ const DEFAULT_GAMES = [
         continue;
       }
       
-      // خارج از صفحه
       if (o.y > H + 50) {
         const bonus = 10 + Math.floor(comboCount / 3) * 5;
         score += bonus;
@@ -793,7 +1496,6 @@ const DEFAULT_GAMES = [
     
     drawCar(carX, H/2);
     
-    // نمایش تعداد موانع
     ctx.fillStyle = 'rgba(255,255,255,0.05)';
     ctx.fillRect(0, 0, W, 2);
   }
@@ -804,7 +1506,6 @@ const DEFAULT_GAMES = [
     requestAnimationFrame(gameLoop);
   }
 
-  // کنترل‌ها
   document.addEventListener('keydown', e => {
     keys[e.key] = true;
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
@@ -815,7 +1516,6 @@ const DEFAULT_GAMES = [
     keys[e.key] = false;
   });
 
-  // پشتیبانی از لمس
   let touchX = null;
   canvas.addEventListener('touchstart', e => {
     touchX = e.touches[0].clientX;
@@ -846,6 +1546,16 @@ const DEFAULT_GAMES = [
 <\/script>
 </body>
 </html>`
+},
+{
+  id: 'default_4',
+  name: '⚔️ Open3D: نبرد نهایی',
+  type: 'html',
+  isDefault: true,
+  size: 8192,
+  author: 'Securolpicxews',
+  date: '1403/04/01',
+  content: OPEN_3D_GAME
 }
 ];
 
